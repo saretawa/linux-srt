@@ -84,7 +84,7 @@ def main():
     rules = load_rules("rule_data.json")
     for rule in rules:
         executor = CommandExecutor(rule)
-        executor.execute(dry_run=args.dry_run)
+        executor.execute(dry_run=args.dry_run, use_bash=args.use_bash)
 
     print(f"\n[INFO] Processed {len(rules)} rule(s) successfully.\n")
 
