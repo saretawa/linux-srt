@@ -1,0 +1,27 @@
+[
+  {
+    "id": 6,
+    "name": "Delete User",
+    "trigger": "process.args",
+    "type": "user",
+    "command": ["userdel", "deluser"],
+    "value": "testuser"
+  },
+  {
+    "id": 40,
+    "name": "Recursively delete",
+    "trigger": "process.args",
+    "type": "folder",
+    "command": "rm -rf",
+    "value": "/tmp/fake-root"
+  },
+  {
+    "id": 39,
+    "name": "Overwrite file with shred",
+    "trigger": "process.args",
+    "type": "file",
+    "command": "shred",
+    "value": "/tmp/test.log"
+  }
+]
+
