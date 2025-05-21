@@ -1,6 +1,6 @@
 **SRT (SIEM Rule Tester)** is a lightweight, modular toolkit designed for testing and validating SIEM detection rules on Linux systems.
 
-It safely simulates alert-triggering behavior by setting up required conditions (users, files, folders, etc.) and executing mapped system commands — with optional dry-run mode for non-disruptive evaluation.
+It safely simulates alert-triggering behavior by setting up required conditions (users, files, folders, etc.) and executing mapped system commands — with optional --dry-run mode for non-disruptive evaluation and --use-bash to execute commands through a shell for improved SIEM visibility.
 
 * Test and verify detection logic before production deployment
 * Simulate real attacker behavior in a controlled lab
