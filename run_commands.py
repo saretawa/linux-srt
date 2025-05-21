@@ -39,27 +39,34 @@ class CommandExecutor:
     def __init__(self, rule: Rule):
         self.rule = rule
 
-    def execute(self, dry_run: bool = False):
+    def execute(self, dry_run: bool = False, use_bash: bool = False):
         print(f"\n[RUNNING] Rule #{self.rule.id}: {self.rule.name}")
 
         if not self.rule.is_valid():
             print(f"[SKIPPED] No valid command defined.")
             return
+        
+        for cmd_parts in self.rule.get_commands():
+            cmd_str = " ".join(cmd_parts)
 
-        for cmd in self.rule.get_commands():
-            cmd_str = " ".join(cmd)
-            print(f"-> {'[DRY RUN]' if dry_run else 'Executing'}: {cmd_str}")
+            if use_bash:
+                final_cmd = ["bash", "-c", cmd_str]
+            else:
+                final_cmd = cmd_parts
+
+            print(f"-> {'[DRY RUN]' if dry_run else 'Executing'}: {' '.join(final_cmd)}")
 
             if dry_run:
                 continue
 
             try:
-                result = subprocess.run(cmd, check=True)
+                result = subprocess.run(final_cmd, check=True)
                 print(f"[SUCCESS] Exit code: {result.returncode}")
             except subprocess.CalledProcessError as e:
                 print(f"[FAILED] Command '{cmd_str}' failed with code {e.returncode}")
             except FileNotFoundError:
-                print(f"[ERROR] Command not found: {cmd[0]}")
+                print(f"[ERROR] Command not found: {final_cmd[0]}")
+
 
 
 def load_rules(json_path: str) -> List[Rule]:
@@ -71,6 +78,7 @@ def load_rules(json_path: str) -> List[Rule]:
 def main():
     parser = argparse.ArgumentParser(description="SIEM Rule Command Executor")
     parser.add_argument("--dry-run", action="store_true", help="Print commands without executing them")
+    parser.add_argument("--use-bash", action="store_true", help="Execute commands through bash -c")
     args = parser.parse_args()
 
     rules = load_rules("rule_data.json")
