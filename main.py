@@ -1,8 +1,9 @@
 import json
 import subprocess
+import argparse
+import os
 
-with open("rule_data.json", "r") as f:
-    data = json.load(f)
+# ─── Handlers ────────────────────────────────────────────────
 
 class PrerequisiteHandler:
     def __init__(self, rule):
@@ -43,38 +44,9 @@ class UserHandler(BaseHandler):
 
     def create(self):
         subprocess.run(["useradd", self.rule["value"]])
-        return True
-
-class FileHandler(BaseHandler):
-    def check(self):
-        import os
-        return os.path.isfile(self.rule["value"])
-
-    def create(self):
-        open(self.rule["value"], "a").close()
-        return True
-
-class FolderHandler(BaseHandler):
-    def check(self):
-        import os
-        return os.path.isdir(self.rule["value"])
-
-    def create(self):
-        import os
-        os.makedirs(self.rule["value"], exist_ok=True)
-        return True
-
-class NoneHandler(BaseHandler):
-    def check(self):
-        print(f"[NoneHandler] No prerequisites for rule: {self.rule['name']}")
-        return True  # Always satisfied
-
-    def create(self):
-        return True  # Nothing to create
 
 class GroupHandler(BaseHandler):
     def check(self):
-        import subprocess
         result = subprocess.run(["getent", "group", self.rule["value"]],
                                 stdout=subprocess.DEVNULL,
                                 stderr=subprocess.DEVNULL)
@@ -82,15 +54,55 @@ class GroupHandler(BaseHandler):
         return result.returncode == 0
 
     def create(self):
-        import subprocess
         print(f"[GroupHandler] Creating group: {self.rule['value']}")
         subprocess.run(["groupadd", self.rule["value"]])
+
+class FileHandler(BaseHandler):
+    def check(self):
+        return os.path.isfile(self.rule["value"])
+
+    def create(self):
+        open(self.rule["value"], "a").close()
+
+class FolderHandler(BaseHandler):
+    def check(self):
+        return os.path.isdir(self.rule["value"])
+
+    def create(self):
+        os.makedirs(self.rule["value"], exist_ok=True)
+
+class NoneHandler(BaseHandler):
+    def check(self):
+        print(f"[NoneHandler] No prerequisites for rule: {self.rule['name']}")
         return True
 
+    def create(self):
+        return True
 
-for rule in data:
-    handler = PrerequisiteHandler(rule)
-    handler.ensure()
+# ─── Main Execution ──────────────────────────────────────────
 
-print("\n[INFO] Prerequisite setup complete. Executing rule commands...\n")
-subprocess.run(["python3", "run_commands.py"])
+def main():
+    parser = argparse.ArgumentParser(description="SRT Prerequisite Setup")
+    parser.add_argument("--dry-run", action="store_true", help="Print commands without executing them")
+    parser.add_argument("--use-bash", action="store_true", help="Execute commands via bash -c")
+    args = parser.parse_args()
+
+    with open("rule_data.json", "r") as f:
+        data = json.load(f)
+
+    for rule in data:
+        handler = PrerequisiteHandler(rule)
+        handler.ensure()
+
+    print("\n[INFO] Prerequisite setup complete. Executing rule commands...\n")
+
+    cmd = ["python3", "run_commands.py"]
+    if args.dry_run:
+        cmd.append("--dry-run")
+    if args.use_bash:
+        cmd.append("--use-bash")
+
+    subprocess.run(cmd)
+
+if __name__ == "__main__":
+    main()
