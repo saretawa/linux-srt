@@ -35,7 +35,7 @@ linux-srt/
 
 ### How to Use
 
-#### 1. Setup test environment:
+#### 1. Setup test environment(creates and runs, use --dry-run flag to just create):
 
 ```bash
 sudo python3 main.py
@@ -51,6 +51,15 @@ python3 run_commands.py
 
 ```bash
 python3 run_commands.py --dry-run
+```
+#### Optional: Execute commands through a shell
+
+```bash
+python3 main.py --use-bash
+```
+or
+```bash
+python3 run_commands.py --use-bash
 ```
 
 ### Currently Supported Rule Types
