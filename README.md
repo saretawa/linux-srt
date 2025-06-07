@@ -84,6 +84,6 @@ PRs are welcome — especially for new rule types, detection scenarios, or impro
 
 ### License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 
